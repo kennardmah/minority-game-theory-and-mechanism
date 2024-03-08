@@ -29,7 +29,7 @@ strategy_to_actions = generate_strategies()
 count = []
 
 # RUN SIMULATION
-
+print(strategy_to_actions)
 for i in range(300):
     farol = 0
     house = 0
@@ -50,6 +50,7 @@ for i in range(300):
         if action == 1:
             farol += 1
         else: house += 1
+
     if farol < house:
         minority = 1
     else: minority = 0
@@ -65,10 +66,9 @@ for i in range(300):
     else: d = d[1:] + '0' # home is minority
     count.append(farol)
 
-
 # Plotting
 plt.figure(figsize=(10, 6))  # Set the figure size (optional)
-plt.plot(list(range(len(count))), count, label='Count', marker='o', linestyle='-')
+plt.plot(list(range(len(count))), count, label='Count', linestyle='-')
 plt.axhline(y=50, color='r', linestyle='--', label='Y=50')  # Add horizontal line at y=50
 plt.title('How busy is El Farol?')
 plt.xlabel('Week')

@@ -1,80 +1,91 @@
-# import stuff
 import random
+from statistics import mean, median, median_high, median_low
 import matplotlib.pyplot as plt
 
-def generate_strategies():
-    strategies = {}
-    for strategy_number in range(0, 256):
-        action_map_bin = format(strategy_number, '08b')
-        strategy = {}
-        for i in range(8):
-            outcome = format(i, '03b')
-            strategy[outcome] = int(action_map_bin[i])
-        strategies[strategy_number] = strategy
+# Define the trend function for calculating trends in attendance
+def trend(counts):
+    if len(counts) <= 1:
+        return 0
+    return counts[-1] - counts[0]
+
+# Define the get_mirror_image function for calculating the mirror image strategy
+def get_mirror_image(half_of_population, attendance):
+    return abs(half_of_population - attendance)
+
+# Define a function to generate strategies based on past attendance
+def generate_strategies(count, half_of_population):
+    if not count:  # If count is empty, initialize with dummy values
+        return {i: 0 for i in range(26)}
+    strategies = {
+        0: count[-1],  # Last week
+        1: count[-2] if len(count) >= 2 else 0,  # Two weeks ago
+        2: count[-3] if len(count) >= 3 else 0,  # Three weeks ago
+        3: count[-4] if len(count) >= 4 else 0,  # Four weeks ago
+        4: min(count),  # Minimum attendance
+        5: min(count[-4:]) if len(count) >= 4 else min(count),  # Minimum month attendance
+        6: min(count[-8:-4]) if len(count) >= 8 else min(count),  # Minimum two month attendance
+        7: min(count[-12:-8]) if len(count) >= 12 else min(count),  # Minimum three month attendance
+        8: int(mean(count[-3:])) if len(count) >= 3 else int(mean(count)),  # Three week average
+        9: int(mean(count[-4:])) if len(count) >= 4 else int(mean(count)),  # Month average
+        10: int(mean(count[-8:-4])) if len(count) >= 8 else int(mean(count)),  # Two month average
+        11: int(mean(count[-12:-8])) if len(count) >= 12 else int(mean(count)),  # Three month average
+        12: int(mean(count)),  # Total average
+        13: int(median(count)),  # Median
+        14: median_high(count),  # Median high
+        15: median_low(count),  # Median low
+        16: trend(count[-4:]) if len(count) >= 4 else 0,  # Month trend
+        17: trend(count[-8:-4]) if len(count) >= 8 else 0,  # Two month trend
+        18: trend(count[-12:-8]) if len(count) >= 12 else 0,  # Three month trend
+        19: get_mirror_image(half_of_population, count[-1]),  # Mirror last week
+        20: get_mirror_image(half_of_population, count[-2]) if len(count) >= 2 else get_mirror_image(half_of_population, 0),  # Mirror two weeks
+        21: get_mirror_image(half_of_population, count[-3]) if len(count) >= 3 else get_mirror_image(half_of_population, 0),  # Mirror three weeks
+        22: get_mirror_image(half_of_population, count[-4]) if len(count) >= 4 else get_mirror_image(half_of_population, 0),  # Mirror four weeks
+        23: get_mirror_image(half_of_population, mean(count[-4:])) if len(count) >= 4 else get_mirror_image(half_of_population, mean(count)),  # Mirror month average
+        24: get_mirror_image(half_of_population, mean(count[-8:-4])) if len(count) >= 8 else get_mirror_image(half_of_population, mean(count)),  # Mirror two month average
+        25: get_mirror_image(half_of_population, mean(count[-12:-8])) if len(count) >= 12 else get_mirror_image(half_of_population, mean(count)),  # Mirror three month average
+    }
     return strategies
 
-# def update_strategy_values(strategySet):
+population = 100  # Define the population size
+half_of_population = population // 2
+count = []  # Initialize the attendance list
 
-# INITIALISE VALUES
+# Initialize the strategy set and agents
+strategy_to_actions = generate_strategies(count, half_of_population)
+strategySet = {x: 0 for x in range(len(strategy_to_actions))}
+agents = {agent: [random.randint(0, len(strategy_to_actions)-1) for _ in range(5)] for agent in range(1, population+1)}
+
+# Run the simulation for 300 iterations
+for _ in range(300):
+    attendance = 0
+
+    # Each agent decides whether to go based on their strategy
+    for agent_id, strategies in agents.items():
+        strategy_scores = [(strategy, strategySet[strategy]) for strategy in strategies]
+        best_strategies = [s for s, score in strategy_scores if score == max(strategy_scores, key=lambda x: x[1])[1]]
+        chosen_strategy = random.choice(best_strategies)
+        # Simplified decision: go if the chosen strategy's value is odd (just for demonstration)
+        if chosen_strategy % 2 == 1:
+            attendance += 1
+        print(agent_id, strategy_scores, '\n', chosen_strategy, attendance)
     
-d = '000' # short term memory
-# initialise strategySet (strategy : value)
-# e.g., strategy = 000 if last three rounds were >50, >50, >50
-strategySet = {x: 0 for x in range(256)}
-# initialise agents (agents : [strategy set])
-agents = {agent: [random.randint(0, 255) for _ in range(15)] for agent in range(1, 102)}
-# strategy_to_actions (strategy num: all potential history -> outcome)
-strategy_to_actions = generate_strategies()
-# graph count
-count = []
+    # Update attendance history
+    count.append(attendance)
 
-# RUN SIMULATION
-print(strategy_to_actions)
-for i in range(300):
-    farol = 0
-    house = 0
-    for x, strats in agents.items():
-        # find active strategies
-        active_strategies = []
-        maxVal = float('-inf')
-        for s in strats:
-            if strategySet[s] > maxVal:
-                active_strategies = [s]
-                maxVal = strategySet[s]
-            elif strategySet[s] == maxVal:
-                active_strategies.append(s)
-        # choose out of the active strategies randomly
-        selected_strategy = random.choice(active_strategies)
-        # check action
-        action = strategy_to_actions[selected_strategy][d]
-        if action == 1:
-            farol += 1
-        else: house += 1
+    # Update strategy values (placeholder logic - adjust according to your strategy evaluation criteria)
+    for strategy, value in strategySet.items():
+        if random.random() > 0.5:  # Randomly decide if a strategy is successful
+            strategySet[strategy] += 1  # Increase the value of successful strategies
+    
+    # Regenerate strategies with updated attendance history
+    strategy_to_actions = generate_strategies(count, half_of_population)
 
-    if farol < house:
-        minority = 1
-    else: minority = 0
-
-    # update strategy values
-    for s in range(256):
-        # if strategy is correct, add 1 for value
-        if strategy_to_actions[s][d] == minority:
-            strategySet[s] += 1
-
-    # update memory
-    if farol < house:
-        d = d[1:] + '1' # farol is minority
-    else: d = d[1:] + '0' # home is minority
-    count.append(farol)
-
-# Plotting
-plt.figure(figsize=(10, 6))  # Set the figure size (optional)
-plt.plot(list(range(len(count))), count, label='Count', linestyle='-')
-plt.axhline(y=50, color='r', linestyle='--', label='Y=50')  # Add horizontal line at y=50
-plt.title('How busy is El Farol?')
+# Plot the simulation results
+plt.figure(figsize=(10, 6))
+plt.plot(range(1, 301), count, label='Attendance')
+plt.axhline(y=half_of_population, color='r', linestyle='--', label='Optimal attendance threshold')
+plt.title('El Farol Bar Attendance Over 300 Weeks')
 plt.xlabel('Week')
-plt.ylabel('Bar Count')
+plt.ylabel('Attendance')
 plt.legend()
-plt.ylim(0, 100)
-plt.grid(True)
 plt.show()

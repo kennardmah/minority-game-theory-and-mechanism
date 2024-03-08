@@ -57,6 +57,7 @@ for i in range(300):
 
     # update strategy values
     for s in range(256):
+        # if strategy is correct, add 1 for value
         if strategy_to_actions[s][d] == minority:
             strategySet[s] += 1
 

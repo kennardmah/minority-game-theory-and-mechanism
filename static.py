@@ -27,13 +27,13 @@
 
 import random
 
-def custom_minority_game(N, X):
+def custom_minority_game(N, X, P):
     # Validate the probability value
     if not 0 <= X <= 100:
         raise ValueError("Probability X must be in the range [0, 100]")
     
     # Convert the probability to a fraction
-    probability = 0.5
+    probability = P
     
     # Initialize agents' decisions based on the custom probability
     agents_decisions = [random.choices([0, 1], weights=[1 - probability, probability])[0] for _ in range(N)]
@@ -51,4 +51,4 @@ def custom_minority_game(N, X):
     print(f"{num_agents_going} agents going to the bar -> {outcome}")
 
 # Example usage with 100 agents and a custom probability of 30%
-custom_minority_game(100, 50)
+custom_minority_game(100, 65, 0.5)

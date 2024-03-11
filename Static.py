@@ -6,6 +6,7 @@ def custom_minority_game_with_agent_and_plot(N, X, P_game, P_agent, num_iteratio
     num_agents_going_list = []
     outcome_list = []
     individual_agent_decision_list = []
+    individual_agent_score = 0  # Initialize the individual player's score
     
     for _ in range(num_iterations):
         # Convert the probability to a fraction
@@ -23,20 +24,16 @@ def custom_minority_game_with_agent_and_plot(N, X, P_game, P_agent, num_iteratio
         else:
             outcome = "Bad time"
         
-        # Print the outcome
-        print(f"{num_agents_going} agents going to the bar -> {outcome}")
-        
         # Individual agent's decision
         individual_agent_decision = random.choices([0, 1], weights=[1 - P_agent, P_agent])[0]
-        print("The individual agent's decision is: " + str(individual_agent_decision))
         
-        # Check if the individual agent is in the minority
-        if individual_agent_decision == 1 and num_agents_going + 1 < X:
-            print("Individual agent is in the minority")
-        elif individual_agent_decision == 0 and num_agents_going >= X:
-            print("Individual agent is in the minority")
-        else:
-            print("Individual agent is not in the majority")
+        # Check if the individual agent is in the minority and adjust the score accordingly
+        if individual_agent_decision == 1:
+            if num_agents_going < X:  # Good time and went to the bar
+                individual_agent_score += 1
+            elif num_agents_going >= X:  # Bad time and went to the bar
+                individual_agent_score -= 1
+        # If the individual agent decides to stay home, do nothing (score remains the same)
         
         # Append results to lists for plotting
         num_agents_going_list.append(num_agents_going)
@@ -66,8 +63,11 @@ def custom_minority_game_with_agent_and_plot(N, X, P_game, P_agent, num_iteratio
     plt.tight_layout()  # Adjust layout for better spacing
     plt.show()
     
-    return num_agents_going_list, outcome_list, individual_agent_decision_list
+    print(f"Individual agent's score over {num_iterations} iterations: {individual_agent_score}")
+    
+    return num_agents_going_list, outcome_list, individual_agent_decision_list, individual_agent_score
 
-# Example usage with 100 agents, a custom probability of 30% for the game, and a probability of 0.4 for the individual agent, running for 5 iterations
-num_iterations = 50
-custom_minority_game_with_agent_and_plot(100, 50, 0.5, 0.4, num_iterations)
+# Example usage
+num_iterations = 200
+custom_minority_game_with_agent_and_plot(101, 60, 0.595, 0.595, num_iterations)
+

@@ -20,16 +20,16 @@ import matplotlib.pyplot as plt
 #                              initialise strategies
 # -----------------------------------------------------------------------------
 
-def trend(counts):
-    if len(counts) <= 1:
+def trend(count):
+    if len(count) <= 1:
         return 0
-    return counts[-1] - counts[0]
+    return count[-1] - count[0]
 
 def get_mirror_image(half_of_population, attendance):
     return half_of_population - abs(half_of_population - attendance)
 
-def generate_strategies(count, half_of_population):
-    if not count:  # If count is empty, default to predicting half_of_population
+def generate_strategies(memory, half_of_population):
+    if not memory:  # If memory is empty, default to predicting half_of_population
         return {i: half_of_population for i in range(15)}
     strategies = {
         0: lambda c: c[-1],
@@ -58,7 +58,7 @@ def generate_strategies(count, half_of_population):
         23: lambda c: get_mirror_image(half_of_population, mean(c[-2:])) + 5 if len(c) >= 2 else half_of_population,
         24: lambda c: half_of_population if mean(c[-4:]) == half_of_population else (mean(c[-4:]) + median(c[-4:])) / 2 if len(c) >= 4 else half_of_population,
     }
-    strategies_actions = {key: strategy(count) for key, strategy in strategies.items()}
+    strategies_actions = {key: strategy(memory) for key, strategy in strategies.items()}
     return strategies_actions
 
 # -----------------------------------------------------------------------------
@@ -67,9 +67,9 @@ def generate_strategies(count, half_of_population):
 
 population = 101
 half_of_population = population // 2
-count = []
+memory = []
 
-strategy_to_actions = generate_strategies(count, half_of_population)
+strategy_to_actions = generate_strategies(memory, half_of_population)
 strategySet = {x: 0 for x in range(len(strategy_to_actions))}
 agents = {agent: [random.randint(0, len(strategy_to_actions)-1) for _ in range(5)] for agent in range(1, population+1)}
 
@@ -77,17 +77,38 @@ agents = {agent: [random.randint(0, len(strategy_to_actions)-1) for _ in range(5
 #            update active strategies (weighted benefits/penalties)
 # -----------------------------------------------------------------------------
 
-def update_strategy_value(strategy, predicted, actual, strategySet, alpha=0.1):
+# def update_strategy_value(strategy, predicted, actual, strategySet, alpha=0.05):
+#     error_magnitude = abs(predicted - actual) / population
+#     current_score = strategySet.get(strategy, 0.5)
+#     new_score = alpha * (1 - error_magnitude) + (1 - alpha) * current_score
+#     if strategy == 3:
+#         print(strategy, current_score, new_score, predicted, actual, predicted - actual)
+#     strategySet[strategy] = new_score
+
+# def calculate_volatility_factor(memory, half_of_population):
+#     if len(memory) >= 5:
+#         recent_volatility = stdev(memory[-5:])
+#         return recent_volatility / half_of_population
+#     return 1
+
+def update_strategy_value(strategy, predicted, actual, strategySet, alpha=0.05, decrease_factor=0.9):
     error_magnitude = abs(predicted - actual) / population
     current_score = strategySet.get(strategy, 0.5)
-    new_score = alpha * (1 - error_magnitude) + (1 - alpha) * current_score
+    
+    # Define an acceptable error margin
+    acceptable_error = 0.1  # This is an example value; adjust based on the problem specifics
+    
+    # Additive Increase for small error
+    if error_magnitude <= acceptable_error:
+        new_score = current_score + alpha
+    # Multiplicative Decrease for large error
+    else:
+        new_score = current_score * decrease_factor
+    
+    # Ensure new score stays within bounds (e.g., between 0 and 1)
+    new_score = min(max(new_score, 0), 1)
+    
     strategySet[strategy] = new_score
-
-def calculate_volatility_factor(count, half_of_population):
-    if len(count) >= 5:
-        recent_volatility = stdev(count[-5:])
-        return recent_volatility / half_of_population
-    return 1
 
 # -----------------------------------------------------------------------------
 #                              run simulation
@@ -95,15 +116,15 @@ def calculate_volatility_factor(count, half_of_population):
 
 iterations = 300
 for i in range(iterations):
-    attendance = 0
-    strategy_to_actions = generate_strategies(count, half_of_population)
+    attendance = 0 # rand int between 0 -101
+    strategy_to_actions = generate_strategies(memory, half_of_population)
     strategy_predictions = {strategy: func for strategy, func in strategy_to_actions.items()}
     for agent_id, strategies in agents.items():
         chosen_strategy = max(strategies, key=lambda x: strategySet[x])
         predicted_attendance = strategy_predictions[chosen_strategy]
         if predicted_attendance < half_of_population:
             attendance += 1
-    count.append(attendance)
+    memory.append(attendance)
     actual_attendance = attendance
     for strategy, prediction in strategy_predictions.items():
         update_strategy_value(strategy, prediction, actual_attendance, strategySet, alpha=0.1)
@@ -114,7 +135,7 @@ for i in range(iterations):
 # -----------------------------------------------------------------------------
 
 plt.figure(figsize=(10, 6))
-plt.plot(range(1, iterations+1), count, label='Attendance')
+plt.plot(range(1, iterations+1), memory, label='Attendance')
 plt.axhline(y=half_of_population, color='r', linestyle='--', label='Optimal attendance threshold')
 plt.title('El Farol Bar Attendance Over 300 Weeks')
 plt.xlabel('Week')

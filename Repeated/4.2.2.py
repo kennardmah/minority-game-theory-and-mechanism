@@ -2,6 +2,10 @@ import random
 from statistics import mean, median, median_high, median_low
 import matplotlib.pyplot as plt
 
+# -----------------------------------------------------------------------------
+#                              initialise strategies
+# -----------------------------------------------------------------------------
+
 def trend(count):
     if len(count) <= 1:
         return 0

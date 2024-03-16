@@ -32,31 +32,31 @@ def generate_strategies(memory, capacity):
     if not memory:  # If memory is empty, default to predicting capacity
         return {i: capacity for i in range(15)}
     strategies = {
-        0: lambda m: m[-1],
-        1: lambda m: mean(m[-3:]) if len(m) >= 3 else capacity,
-        2: lambda m: trend(m[-4:]) + m[-1] if len(m) >= 4 else capacity,
-        3: lambda m: random.randint(0, N),
-        4: lambda m: mean(m[-5:]) if len(m) >= 5 else capacity,
-        5: lambda m: get_mirror_image(capacity, m[-1]),
-        6: lambda m: median(m[-3:]) if len(m) >= 3 else capacity,
-        7: lambda m: capacity,
-        8: lambda m: stdev(m[-4:]) if len(m) >= 5 else capacity,
-        9: lambda m: m[-1] - mean(m[-4:]) + m[-1] if len(m) >= 4 else capacity,
-        10: lambda m: capacity if m[-1] % 2 == 0 else capacity + 10,
-        11: lambda m: sum(m[-4:]) / len(m[-4:]) if len(m) >= 4 else capacity,
-        12: lambda m: min(m[-4:]) if len(m) >= 4 else capacity,
-        13: lambda m: max(m[-4:]) if len(m) >= 4 else capacity,
-        14: lambda m: trend(m[-6:]) + m[-1] if len(m) >= 6 else capacity,
-        15: lambda m: get_mirror_image(capacity, mean(m[-2:])) if len(m) >= 2 else capacity,
-        16: lambda m: get_mirror_image(capacity, median(m[-4:])) if len(m) >= 4 else capacity,
-        17: lambda m: get_mirror_image(capacity, min(m[-4:])) if len(m) >= 4 else capacity,
-        18: lambda m: get_mirror_image(capacity, max(m[-4:])) if len(m) >= 4 else capacity,
-        19: lambda m: get_mirror_image(capacity, stdev(m[-4:])) if len(m) >= 5 else capacity,
-        20: lambda m: capacity + (m[-1] - capacity) * 0.5 if m else capacity,
-        21: lambda m: capacity - trend(m[-3:]) if len(m) >= 3 else capacity,
-        22: lambda m: capacity * 0.9 if m[-1] > capacity else capacity * 1.1,
-        23: lambda m: get_mirror_image(capacity, mean(m[-2:])) + 5 if len(m) >= 2 else capacity,
-        24: lambda m: capacity if mean(m[-4:]) == capacity else (mean(m[-4:]) + median(m[-4:])) / 2 if len(m) >= 4 else capacity,
+        0: lambda m: mean(m) if len(m) >= 1 else capacity,
+        1: lambda m: m[-1] if len(m) >= 1 else capacity,
+        # 2: lambda m: trend(m[-4:]) + m[-1] if len(m) >= 4 else capacity,
+        # 3: lambda m: random.randint(0, N),
+        # 4: lambda m: mean(m[-5:]) if len(m) >= 5 else capacity,
+        # 5: lambda m: get_mirror_image(capacity, m[-1]),
+        # 6: lambda m: median(m[-3:]) if len(m) >= 3 else capacity,
+        # 7: lambda m: capacity,
+        # 8: lambda m: stdev(m[-4:]) if len(m) >= 5 else capacity,
+        # 9: lambda m: m[-1] - mean(m[-4:]) + m[-1] if len(m) >= 4 else capacity,
+        # 10: lambda m: capacity if m[-1] % 2 == 0 else capacity + 10,
+        # 11: lambda m: sum(m[-4:]) / len(m[-4:]) if len(m) >= 4 else capacity,
+        # 12: lambda m: min(m[-4:]) if len(m) >= 4 else capacity,
+        # 13: lambda m: max(m[-4:]) if len(m) >= 4 else capacity,
+        # 14: lambda m: trend(m[-6:]) + m[-1] if len(m) >= 6 else capacity,
+        # 15: lambda m: get_mirror_image(capacity, mean(m[-2:])) if len(m) >= 2 else capacity,
+        # 16: lambda m: get_mirror_image(capacity, median(m[-4:])) if len(m) >= 4 else capacity,
+        # 17: lambda m: get_mirror_image(capacity, min(m[-4:])) if len(m) >= 4 else capacity,
+        # 18: lambda m: get_mirror_image(capacity, max(m[-4:])) if len(m) >= 4 else capacity,
+        # 19: lambda m: get_mirror_image(capacity, stdev(m[-4:])) if len(m) >= 5 else capacity,
+        # 20: lambda m: capacity + (m[-1] - capacity) * 0.5 if m else capacity,
+        # 21: lambda m: capacity - trend(m[-3:]) if len(m) >= 3 else capacity,
+        # 22: lambda m: capacity * 0.9 if m[-1] > capacity else capacity * 1.1,
+        # 23: lambda m: get_mirror_image(capacity, mean(m[-2:])) + 5 if len(m) >= 2 else capacity,
+        # 24: lambda m: capacity if mean(m[-4:]) == capacity else (mean(m[-4:]) + median(m[-4:])) / 2 if len(m) >= 4 else capacity,
     }
     strategies_actions = {key: strategy(memory) for key, strategy in strategies.items()}
     return strategies_actions
@@ -72,7 +72,9 @@ agents_payoffs = {agent: 0 for agent in range(1, N+1)}
 
 strategy_to_actions = generate_strategies(memory, capacity)
 strategySet = {x: 0 for x in range(len(strategy_to_actions))}
-agents = {agent: [random.randint(0, len(strategy_to_actions)-1) for _ in range(5)] for agent in range(1, N+1)}
+# agents = {agent: [random.randint(0, len(strategy_to_actions)-1) for _ in range(5)] for agent in range(1, N+1)}
+agents = {agent: [random.randint(0, 1) for _ in range(5)] for agent in range(1, N+1)}
+
 
 # -----------------------------------------------------------------------------
 #            update active strategies (weighted benefits/penalties)
@@ -109,9 +111,9 @@ def calculate_volatility_factor(memory, capacity):
 def should_I_go(prediction, capacity):
     if prediction < capacity:
         if prediction >= 50:
-            return 1 if random.random() < 0.4 else 0  # x is 1 with a 10% chance, otherwise 0
+            return 1 if random.random() < 0.5 else 0  # x is 1 with a 20% chance, otherwise 0
         if prediction >= 40:
-            return 1 if random.random() < 0.6 else 0  # x is 1 with a 10% chance, otherwise 0
+            return 1 if random.random() < 0.8 else 0  # x is 1 with a 70% chance, otherwise 0
         return 1
     return 0
 

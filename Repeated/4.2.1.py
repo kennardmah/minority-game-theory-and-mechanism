@@ -51,7 +51,7 @@ for i in range(300):
             farol += 1
         else: house += 1
 
-    if farol < house:
+    if farol < house + 10:
         minority = 1
     else: minority = 0
 
@@ -62,15 +62,15 @@ for i in range(300):
             strategySet[s] += 1
 
     # update memory
-    if farol < house:
+    if farol < house + 10:
         d = d[1:] + '1' # farol is minority
     else: d = d[1:] + '0' # home is minority
     count.append(farol)
 
 # Plotting
 plt.figure(figsize=(10, 6))  # Set the figure size (optional)
-plt.plot(list(range(len(count))), count, label='Count', linestyle='-')
-plt.axhline(y=50, color='r', linestyle='--', label='Y=50')  # Add horizontal line at y=50
+plt.plot(list(range(len(count))), count, label='Count', linestyle='-', color = 'tan')
+plt.axhline(y=60, color='brown', linestyle='--', label='Y=50')  # Add horizontal line at y=50
 plt.title('How busy is El Farol?')
 plt.xlabel('Week')
 plt.ylabel('Bar Count')

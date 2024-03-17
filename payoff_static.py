@@ -1,7 +1,9 @@
+import numpy as np
 import math
 
 n = 101
-proba = 0.595
+capacity = 60
+proba = capacity/n
 payoff = [0] * (n + 1)
 
 for k in range(1, 61):
@@ -15,3 +17,4 @@ for k in range(61, 102):
 expected = sum(payoff)
 
 print(expected)
+print(payoff)

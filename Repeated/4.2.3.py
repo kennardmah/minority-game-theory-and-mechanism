@@ -144,10 +144,29 @@ print(f"Collective Payoff: {collective_payoff}")
 
 
 plt.figure(figsize=(10, 6))
-plt.plot(range(1, iterations+1), memory, label='Attendance')
-plt.axhline(y=capacity, color='r', linestyle='--', label='Optimal attendance threshold')
+plt.plot(range(1, iterations+1), memory, label='Attendance', color = 'tan')
+plt.axhline(y=capacity, color='brown', linestyle='--', label='Optimal attendance threshold')
 plt.title('El Farol Bar Attendance Over 300 Weeks')
 plt.xlabel('Week')
 plt.ylabel('Number of Attendees')
 plt.legend()
+plt.show()
+
+# Assuming 'agents_payoffs' is a dictionary with agent IDs as keys and their payoffs as values
+payoffs = list(agents_payoffs.values())
+
+# Calculate the mean payoff
+mean_payoff = mean(payoffs)
+
+# Create a histogram of the payoffs
+plt.figure(figsize=(10, 6))
+plt.hist(payoffs, bins=20, color='tan')
+
+# Add a vertical line for the mean payoff
+plt.axvline(mean_payoff, color='red', linestyle='dashed', linewidth=1)
+plt.text(mean_payoff, plt.ylim()[1] * 0.9, f'Mean: {mean_payoff:.2f}', color = 'red')
+
+plt.title('Distribution of Individual Payoffs')
+plt.xlabel('Payoff')
+plt.ylabel('Frequency')
 plt.show()

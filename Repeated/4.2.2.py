@@ -11,10 +11,10 @@ def trend(count):
         return 0
     return count[-1] - count[0]
 
-def get_mirror_image(half_of_population, attendance):
-    return abs(half_of_population - attendance)
+def get_mirror_image(capacity, attendance):
+    return abs(capacity - attendance)
 
-def generate_strategies(memory, half_of_population):
+def generate_strategies(memory, capacity):
     if not memory:
         return {i: 0 for i in range(26)}
     strategies = {
@@ -37,22 +37,22 @@ def generate_strategies(memory, half_of_population):
         16: trend(memory[-4:]) if len(memory) >= 4 else 0,
         17: trend(memory[-8:-4]) if len(memory) >= 8 else 0,
         18: trend(memory[-12:-8]) if len(memory) >= 12 else 0,
-        19: get_mirror_image(half_of_population, memory[-1]),
-        20: get_mirror_image(half_of_population, memory[-2]) if len(memory) >= 2 else get_mirror_image(half_of_population, 0),
-        21: get_mirror_image(half_of_population, memory[-3]) if len(memory) >= 3 else get_mirror_image(half_of_population, 0),
-        22: get_mirror_image(half_of_population, memory[-4]) if len(memory) >= 4 else get_mirror_image(half_of_population, 0),
-        23: get_mirror_image(half_of_population, mean(memory[-4:])) if len(memory) >= 4 else get_mirror_image(half_of_population, mean(memory)),
-        24: get_mirror_image(half_of_population, mean(memory[-8:-4])) if len(memory) >= 8 else get_mirror_image(half_of_population, mean(memory)),
-        25: get_mirror_image(half_of_population, mean(memory[-12:-8])) if len(memory) >= 12 else get_mirror_image(half_of_population, mean(memory)),
+        19: get_mirror_image(capacity, memory[-1]),
+        20: get_mirror_image(capacity, memory[-2]) if len(memory) >= 2 else get_mirror_image(capacity, 0),
+        21: get_mirror_image(capacity, memory[-3]) if len(memory) >= 3 else get_mirror_image(capacity, 0),
+        22: get_mirror_image(capacity, memory[-4]) if len(memory) >= 4 else get_mirror_image(capacity, 0),
+        23: get_mirror_image(capacity, mean(memory[-4:])) if len(memory) >= 4 else get_mirror_image(capacity, mean(memory)),
+        24: get_mirror_image(capacity, mean(memory[-8:-4])) if len(memory) >= 8 else get_mirror_image(capacity, mean(memory)),
+        25: get_mirror_image(capacity, mean(memory[-12:-8])) if len(memory) >= 12 else get_mirror_image(capacity, mean(memory)),
     }
     return strategies
 
-population = 100  # Define the population size
-half_of_population = population // 2
+population = 101  # Define the population size
+capacity = 60
 memory = []  # Initialize the attendance list
 
 # Initialize the strategy set and agents
-strategy_to_actions = generate_strategies(memory, half_of_population)
+strategy_to_actions = generate_strategies(memory, capacity)
 strategySet = {x: 0 for x in range(len(strategy_to_actions))}
 agents = {agent: [random.randint(0, len(strategy_to_actions)-1) for _ in range(5)] for agent in range(1, population+1)}
 
@@ -79,12 +79,12 @@ for _ in range(300):
             strategySet[strategy] += 1  # Increase the value of successful strategies
     
     # Regenerate strategies with updated attendance history
-    strategy_to_actions = generate_strategies(memory, half_of_population)
+    strategy_to_actions = generate_strategies(memory, capacity)
 
 # Plot the simulation results
 plt.figure(figsize=(10, 6))
-plt.plot(range(1, 301), memory, label='Attendance')
-plt.axhline(y=half_of_population, color='r', linestyle='--', label='Optimal attendance threshold')
+plt.plot(range(1, 301), memory, label='Attendance', color = 'tan')
+plt.axhline(y=capacity, color='brown', linestyle='--', label='Optimal attendance threshold')
 plt.title('El Farol Bar Attendance Over 300 Weeks')
 plt.xlabel('Week')
 plt.ylabel('Attendance')

@@ -7,7 +7,8 @@ def custom_minority_game_with_agent_and_plot(N, X, P_game, P_agent, num_iteratio
     outcome_list = []
     individual_agent_decision_list = []
     individual_agent_score = 0  # Initialize the individual player's score
-    
+    individual_outcome = 0
+
     for _ in range(num_iterations):
         # Convert the probability to a fraction
         probability_game = P_game
@@ -31,17 +32,24 @@ def custom_minority_game_with_agent_and_plot(N, X, P_game, P_agent, num_iteratio
         if individual_agent_decision == 1:
             if num_agents_going < X:  # Good time and went to the bar
                 individual_agent_score += 1
+                individual_outcome = 1
             elif num_agents_going >= X:  # Bad time and went to the bar
                 individual_agent_score -= 1
+                individual_outcome = 0
+        else:
+            if num_agents_going < X:  # Good time and went to the bar
+                individual_outcome = 0
+            elif num_agents_going >= X:  # Bad time and went to the bar
+                individual_outcome = 1
         # If the individual agent decides to stay home, do nothing (score remains the same)
         
         # Append results to lists for plotting
         num_agents_going_list.append(num_agents_going)
-        outcome_list.append(1 if outcome == "Good time" else 0)  # Map "Good time" to 1, "Bad time" to 0
+        outcome_list.append(individual_outcome)  # Map "Good time" to 1, "Bad time" to 0
         individual_agent_decision_list.append(individual_agent_decision)
     
     # Plot both subplots on the same figure
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(12, 6))
 
     # Subplot 1: Number of Agents Going and Threshold
     plt.subplot(2, 1, 1)
@@ -68,6 +76,6 @@ def custom_minority_game_with_agent_and_plot(N, X, P_game, P_agent, num_iteratio
     return num_agents_going_list, outcome_list, individual_agent_decision_list, individual_agent_score
 
 # Example usage
-num_iterations = 200
-custom_minority_game_with_agent_and_plot(101, 60, 0.595, 0.595, num_iterations)
+num_iterations = 50
+custom_minority_game_with_agent_and_plot(101, 60, 0.6, 0.6, num_iterations)
 

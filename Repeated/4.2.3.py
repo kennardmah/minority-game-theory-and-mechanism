@@ -84,12 +84,12 @@ def update_strategy_value(strategy, prediction, actual, strategySet, alpha=0.5):
     current_score = strategySet.get(strategy, 0.5)
     if actual >= capacity:
         if prediction >= capacity: # good
-            new_score = current_score + 1 
+            new_score = current_score + alpha
         elif prediction < capacity: # bad
             new_score = current_score + alpha*(1 - error_magnitude)
     elif actual < capacity:
         if prediction < capacity: # good
-            new_score = current_score + 1 
+            new_score = current_score + alpha
         elif prediction >= capacity: # bad
             new_score = current_score + alpha*(1 - error_magnitude)
     # if strategy == 3:

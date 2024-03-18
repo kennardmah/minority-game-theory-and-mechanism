@@ -1,4 +1,3 @@
-import numpy as np
 import math
 
 n = 101
@@ -15,6 +14,4 @@ for k in range(61, 102):
     payoff[k] = -P * k
 
 expected = sum(payoff)
-
 print(expected)
-print(payoff)

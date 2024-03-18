@@ -56,6 +56,6 @@ def custom_minority_game_with_agent_and_plot(N, X, P_game, P_agent, num_iteratio
     return num_agents_going_list, outcome_list, individual_agent_decision_list, individual_scores, collective_score
 
 # Example usage
-num_iterations = 1000
-P_game, P_agent = 0.59, 0.59
+num_iterations = 100000
+P_game, P_agent = 60/101, 60/101
 custom_minority_game_with_agent_and_plot(101, 60, P_game, P_agent, num_iterations)

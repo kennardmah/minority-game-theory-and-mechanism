@@ -1,5 +1,6 @@
 import random
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 
 def custom_minority_game_with_agent_and_plot(N, X, P_game, P_agent, num_iterations):
     # Lists to store results for plotting
@@ -10,11 +11,9 @@ def custom_minority_game_with_agent_and_plot(N, X, P_game, P_agent, num_iteratio
     individual_outcome = 0
 
     for _ in range(num_iterations):
-        # Convert the probability to a fraction
-        probability_game = P_game
         
         # Initialize agents' decisions based on the custom probability
-        agents_decisions = [random.choices([0, 1], weights=[1 - probability_game, probability_game])[0] for _ in range(N)]
+        agents_decisions = [random.choices([0, 1], weights=[1 - P_game, P_game])[0] for _ in range(N-1)]
         
         # Count the number of agents going to the bar
         num_agents_going = sum(agents_decisions)
@@ -48,25 +47,26 @@ def custom_minority_game_with_agent_and_plot(N, X, P_game, P_agent, num_iteratio
         outcome_list.append(individual_outcome)  # Map "Good time" to 1, "Bad time" to 0
         individual_agent_decision_list.append(individual_agent_decision)
     
-    # Plot both subplots on the same figure
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(12, 8))
+    gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1])
 
-    # Subplot 1: Number of Agents Going and Threshold
-    plt.subplot(2, 1, 1)
-    plt.plot(range(1, num_iterations + 1), num_agents_going_list, label='Number of Agents Going')
-    plt.axhline(y=X, color='r', linestyle='--', label='Threshold (X)')
-    plt.xlabel('Iteration')
-    plt.ylabel('Values')
-    plt.title('Number of Agents Going and Threshold')
-    plt.legend()
+    ax0 = plt.subplot(gs[0])
+    ax0.plot(range(1, num_iterations + 1), num_agents_going_list, color='saddlebrown', label='Number of Agents Going')
+    ax0.axhline(y=X, color='darkorange', linestyle='--', label='Threshold (X)')
+    ax0.set_xlabel('Iteration')
+    ax0.set_ylabel('Values')
+    ax0.set_title('Number of Agents Going and Threshold')
+    ax0.legend()
+    ax0.set_ylim(30, 90)
 
-    # Subplot 2: Individual Agent's Decision and Minority Status
-    plt.subplot(2, 1, 2)
-    plt.scatter(range(1, num_iterations + 1), individual_agent_decision_list, c=outcome_list, cmap='viridis', label='Individual Agent Decision')
-    plt.xlabel('Iteration')
-    plt.ylabel('Not going / Going')
-    plt.title('Individual Agent Decision and Minority Status')
-    plt.legend()
+    # Subplot 2: Individual Agent's Decision and Minority Status, make it vertically shorter
+    ax1 = plt.subplot(gs[1])
+    ax1.scatter(range(1, num_iterations + 1), individual_agent_decision_list, c=outcome_list, cmap='copper', label='Individual Agent Decision')
+    ax1.set_xlabel('Iteration')
+    ax1.set_ylabel('Not going / Going')
+    ax1.set_yticks([0, 1])  # Only show values 0 and 1 on the y-axis
+    ax1.set_title('Individual Agent Decision and Minority Status')
+    ax1.legend()
 
     plt.tight_layout()  # Adjust layout for better spacing
     plt.show()
@@ -77,5 +77,5 @@ def custom_minority_game_with_agent_and_plot(N, X, P_game, P_agent, num_iteratio
 
 # Example usage
 num_iterations = 50
-custom_minority_game_with_agent_and_plot(101, 60, 0.6, 0.6, num_iterations)
+custom_minority_game_with_agent_and_plot(101, 60, 60/101, 60/101, num_iterations)
 

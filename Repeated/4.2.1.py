@@ -1,4 +1,3 @@
-# import stuff
 import random
 import matplotlib.pyplot as plt
 
@@ -12,29 +11,17 @@ def generate_strategies():
             strategy[outcome] = int(action_map_bin[i])
         strategies[strategy_number] = strategy
     return strategies
-
-# def update_strategy_values(strategySet):
-
-# INITIALISE VALUES
     
-d = '000' # short term memory
-# initialise strategySet (strategy : value)
-# e.g., strategy = 000 if last three rounds were >50, >50, >50
+d = '000'
 strategySet = {x: 0 for x in range(256)}
-# initialise agents (agents : [strategy set])
 agents = {agent: [random.randint(0, 255) for _ in range(15)] for agent in range(1, 102)}
-# strategy_to_actions (strategy num: all potential history -> outcome)
 strategy_to_actions = generate_strategies()
-# graph count
 count = []
 
-# RUN SIMULATION
-print(strategy_to_actions)
 for i in range(300):
     farol = 0
     house = 0
     for x, strats in agents.items():
-        # find active strategies
         active_strategies = []
         maxVal = float('-inf')
         for s in strats:
@@ -43,9 +30,7 @@ for i in range(300):
                 maxVal = strategySet[s]
             elif strategySet[s] == maxVal:
                 active_strategies.append(s)
-        # choose out of the active strategies randomly
         selected_strategy = random.choice(active_strategies)
-        # check action
         action = strategy_to_actions[selected_strategy][d]
         if action == 1:
             farol += 1
@@ -55,22 +40,17 @@ for i in range(300):
         minority = 1
     else: minority = 0
 
-    # update strategy values
     for s in range(256):
-        # if strategy is correct, add 1 for value
         if strategy_to_actions[s][d] == minority:
             strategySet[s] += 1
-
-    # update memory
     if farol < house + 10:
-        d = d[1:] + '1' # farol is minority
-    else: d = d[1:] + '0' # home is minority
+        d = d[1:] + '1'
+    else: d = d[1:] + '0'
     count.append(farol)
 
-# Plotting
-plt.figure(figsize=(10, 6))  # Set the figure size (optional)
+plt.figure(figsize=(10, 6))
 plt.plot(list(range(len(count))), count, label='Count', linestyle='-', color = 'tan')
-plt.axhline(y=60, color='brown', linestyle='--', label='Y=50')  # Add horizontal line at y=50
+plt.axhline(y=60, color='brown', linestyle='--', label='Y=50')
 plt.title('How busy is El Farol?')
 plt.xlabel('Week')
 plt.ylabel('Bar Count')

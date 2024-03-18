@@ -2,10 +2,6 @@ import random
 from statistics import mean, median, median_high, median_low
 import matplotlib.pyplot as plt
 
-# -----------------------------------------------------------------------------
-#                              initialise strategies
-# -----------------------------------------------------------------------------
-
 def trend(count):
     if len(count) <= 1:
         return 0
@@ -47,17 +43,17 @@ def generate_strategies(memory, capacity):
     }
     return strategies
 
-population = 101  # Define the population size
+population = 101
 capacity = 60
-memory = []  # Initialize the attendance list
+memory = []
+iterations = 300
 
 # Initialize the strategy set and agents
 strategy_to_actions = generate_strategies(memory, capacity)
 strategySet = {x: 0 for x in range(len(strategy_to_actions))}
 agents = {agent: [random.randint(0, len(strategy_to_actions)-1) for _ in range(5)] for agent in range(1, population+1)}
 
-# Run the simulation for 300 iterations
-for _ in range(300):
+for _ in range(iterations):
     attendance = 0
 
     # Each agent decides whether to go based on their strategy
@@ -65,18 +61,20 @@ for _ in range(300):
         strategy_scores = [(strategy, strategySet[strategy]) for strategy in strategies]
         best_strategies = [s for s, score in strategy_scores if score == max(strategy_scores, key=lambda x: x[1])[1]]
         chosen_strategy = random.choice(best_strategies)
-        # Simplified decision: go if the chosen strategy's value is odd (just for demonstration)
-        if chosen_strategy % 2 == 1:
+        if strategy_to_actions[chosen_strategy] < capacity:
             attendance += 1
-        print(agent_id, strategy_scores, '\n', chosen_strategy, attendance)
+        # print(agent_id, strategy_scores, '\n', chosen_strategy, attendance)
     
-    # Update attendance history
     memory.append(attendance)
 
-    # Update strategy values (placeholder logic - adjust according to your strategy evaluation criteria)
+    # Update strategy values (refined in 4.2.3)
     for strategy, value in strategySet.items():
-        if random.random() > 0.5:  # Randomly decide if a strategy is successful
-            strategySet[strategy] += 1  # Increase the value of successful strategies
+        if attendance >= capacity:
+            if value >= capacity:
+                strategySet[strategy] += 1
+        else:
+            if value < capacity:
+                strategySet[strategy] += 1
     
     # Regenerate strategies with updated attendance history
     strategy_to_actions = generate_strategies(memory, capacity)
@@ -84,6 +82,7 @@ for _ in range(300):
 # Plot the simulation results
 plt.figure(figsize=(10, 6))
 plt.plot(range(1, 301), memory, label='Attendance', color = 'tan')
+plt.ylim(0, population)
 plt.axhline(y=capacity, color='brown', linestyle='--', label='Optimal attendance threshold')
 plt.title('El Farol Bar Attendance Over 300 Weeks')
 plt.xlabel('Week')

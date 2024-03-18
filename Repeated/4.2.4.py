@@ -30,16 +30,18 @@ def get_mirror_image(capacity, attendance):
 
 def generate_strategies(memory, capacity):
     if not memory:  # If memory is empty, default to predicting capacity
-        return {i: capacity for i in range(15)}
+        return {i: capacity for i in range(25)}
     strategies = {
-        0: lambda m: mean(m) if len(m) >= 1 else capacity,
+        # strategy type 1
+        0: lambda m: 1000,
+        # below are all strategy type 2
         1: lambda m: m[-1] if len(m) >= 1 else capacity,
         2: lambda m: trend(m[-4:]) + m[-1] if len(m) >= 4 else capacity,
-        3: lambda m: random.randint(0, N),
+        3: lambda m: mean(m[-3:]) if len(m) >= 3 else capacity,
         4: lambda m: mean(m[-5:]) if len(m) >= 5 else capacity,
         5: lambda m: get_mirror_image(capacity, m[-1]),
         6: lambda m: median(m[-3:]) if len(m) >= 3 else capacity,
-        7: lambda m: capacity,
+        7: lambda m: mean(m) if len(m) >= 1 else capacity,
         8: lambda m: stdev(m[-4:]) if len(m) >= 5 else capacity,
         9: lambda m: m[-1] - mean(m[-4:]) + m[-1] if len(m) >= 4 else capacity,
         10: lambda m: capacity if m[-1] % 2 == 0 else capacity + 10,
@@ -72,9 +74,13 @@ agents_payoffs = {agent: 0 for agent in range(1, N+1)}
 
 strategy_to_actions = generate_strategies(memory, capacity)
 strategySet = {x: 0 for x in range(len(strategy_to_actions))}
-# agents = {agent: [random.randint(0, len(strategy_to_actions)-1) for _ in range(5)] for agent in range(1, N+1)}
-agents = {agent: [random.randint(0, 24) for _ in range(5)] for agent in range(1, N+1)}
-
+agents = {}
+print(strategySet)
+for agent in range(1, N+1):
+    if agent <= 50:
+        agents[agent] = [0]
+    else:
+        agents[agent] = [random.randint(1, len(strategy_to_actions)-1) for _ in range(5)]
 
 # -----------------------------------------------------------------------------
 #            update active strategies (weighted benefits/penalties)
@@ -109,11 +115,14 @@ def calculate_volatility_factor(memory, capacity):
 # -----------------------------------------------------------------------------
 
 def should_I_go(prediction, capacity):
+    if prediction == 1000:
+        return 1 if random.random() < capacity/101 else 0 # this is for strategy set 1
+     # this is for strategy set 2
     if prediction < capacity:
         if prediction >= 50:
-            return 1 if random.random() < 0.5 else 0  # x is 1 with a 20% chance, otherwise 0
+            return 1 if random.random() < 0.4 else 0
         if prediction >= 40:
-            return 1 if random.random() < 0.8 else 0  # x is 1 with a 70% chance, otherwise 0
+            return 1 if random.random() < 0.7 else 0
         return 1
     return 0
 
@@ -121,7 +130,7 @@ def should_I_go(prediction, capacity):
 #                              run simulation
 # -----------------------------------------------------------------------------
 
-iterations = 300
+iterations = 301
 for i in range(iterations):
     attendance = 0
     decisions = []
@@ -130,6 +139,7 @@ for i in range(iterations):
     for agent_id, strategies in agents.items():
         chosen_strategy = max(strategies, key=lambda x: strategySet[x])
         prediction = strategy_predictions[chosen_strategy]
+        print(prediction)
         decision_to_go = should_I_go(prediction, capacity)
         decisions.append((agent_id, decision_to_go))
         if decision_to_go:
@@ -139,8 +149,6 @@ for i in range(iterations):
             agents_payoffs[id] += 1
         elif decision and attendance >= capacity:
             agents_payoffs[id] -= 1
-    print(i, agents_payoffs[1])
-
     memory.append(attendance)
     for strategy, prediction in strategy_predictions.items():
         update_strategy_value(strategy, prediction, attendance, strategySet, alpha=0.5)
@@ -157,12 +165,28 @@ for agent_id, payoff in agents_payoffs.items():
     collective_payoff += payoff
 print(f"Collective Payoff: {collective_payoff}")
 
-
 plt.figure(figsize=(10, 6))
-plt.plot(range(1, iterations+1), memory, label='Attendance')
-plt.axhline(y=capacity, color='r', linestyle='--', label='Optimal attendance threshold')
+plt.plot(range(1, iterations+1), memory, label='Attendance', color = 'tan')
+plt.axhline(y=capacity, color='brown', linestyle='--', label='Optimal attendance threshold')
 plt.title('El Farol Bar Attendance Over 300 Weeks')
 plt.xlabel('Week')
 plt.ylabel('Number of Attendees')
 plt.legend()
+plt.show()
+
+strategy1_payoffs = [payoff for agent, payoff in agents_payoffs.items() if 1 <= agent <= 50]
+strategy2_payoffs = [payoff for agent, payoff in agents_payoffs.items() if 51 <= agent <= 101]
+
+plt.figure(figsize=(8, 2))
+plt.boxplot([strategy1_payoffs, strategy2_payoffs], labels=['Static Agents', 'Adaptive Agents'], widths=0.3, patch_artist=True,
+                  boxprops=dict(facecolor='tan', color='brown'),
+                  whiskerprops=dict(color='brown'),
+                  capprops=dict(color='brown'),
+                  medianprops=dict(color='brown')
+)
+plt.title('Comparison of Payoffs by Strategy Type')
+plt.ylabel('Payoff')
+plt.xlabel('Strategy Type')
+plt.grid(axis='y')
+
 plt.show()

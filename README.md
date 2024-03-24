@@ -32,37 +32,44 @@ cd minority-game-theory-and-mechanism
 
 ## Usage
 
-The project is divided into three main parts, each focusing on a different aspect of the El Farol Bar problem. You can run the Jupyter Notebooks associated with each part to see the simulations and analyses.
+The project is divided into three main parts, each focusing on a different aspect of the El Farol Bar problem. You can run the python codes associated with each part to see the simulations and analyses.
 
 ### Single Shot Static Games
 
 Exploration of single-shot games, where each game is played only once without any learning or adaptation by the agents.
 
+```bash
+cd Static
+python singleshot_static.py
 ```
-Static Games Folder
-```
+
 
 ### Repeated Static Games
 
 Investigation into games that are played repeatedly, simulating multiple weeks without agents evolving their decision-making process.
 
-```
-Static Games Folder
+```bash
+cd Static
+python repeated_static.py
 ```
 
 ### Repeated Inductive Games
 
 Simulation of games where agents not only adapt based on past outcomes but also evolve their decision-making strategies over time.
 
-```
-Repeated Games Folder
+```bash
+cd Repeated
+python 4.2.1.py
+python 4.2.2.py
+python 4.2.3.py
+python 4.2.4.py
 ```
 
 ### Final Report
 
 For a comprehensive understanding of the findings and implications of our simulations, refer to the final report:
 
-```
+```plaintext
 MinorityGames.pdf
 ```
 
@@ -72,14 +79,10 @@ Contributions are what make the open-source community such an amazing place to l
 
 Please refer to the Contributing section for detailed instructions on how to contribute.
 
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
 ## Contact
 
-Kennard Mah (DE4)
-Felix Brochier (DE4)
+Kennard Mah (DE4) - https://www.linkedin.com/in/kennardmah/
+Felix Brochier (DE4) - https://www.linkedin.com/in/felix-brochier-80572617b/
 
 ## Acknowledgements
 
